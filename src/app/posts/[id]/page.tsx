@@ -56,7 +56,7 @@ export default function PostDetailPage() {
         {isLoggedIn && post.writer === userEmail && (
           <div className="flex justify-end gap-2 mt-8">
             <button
-              onClick={() => router.push(`/posts/edit/${id}`)}
+              onClick={() => router.push(`/posts/write?edit=${id}`)}
               className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
             >
               수정
