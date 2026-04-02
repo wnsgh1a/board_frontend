@@ -18,7 +18,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const response = await axios.post("/api/users/login", formData);
-      const token = response.data; // 백엔드에서 String으로 토큰 반환
+      const token = response.data;
       login(formData.email, token);
       alert("로그인 성공!");
       router.push("/");

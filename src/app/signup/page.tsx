@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "@/api/axios";
+import { UserSignUpRequest } from "@/types/auth";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserSignUpRequest>({
     email: "",
     password: "",
     nickname: "",
@@ -24,14 +25,16 @@ export default function SignUpPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
-        <h1 className="text-2xl font-bold text-center">회원가입</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-lg">
+        <h1 className="text-2xl font-bold text-center text-gray-900">
+          회원가입
+        </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             placeholder="이메일"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
@@ -41,7 +44,7 @@ export default function SignUpPage() {
           <input
             type="password"
             placeholder="비밀번호"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.password}
             onChange={(e) =>
               setFormData({ ...formData, password: e.target.value })
@@ -51,7 +54,7 @@ export default function SignUpPage() {
           <input
             type="text"
             placeholder="닉네임"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.nickname}
             onChange={(e) =>
               setFormData({ ...formData, nickname: e.target.value })
@@ -60,7 +63,7 @@ export default function SignUpPage() {
           />
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full py-3 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition"
           >
             가입하기
           </button>
