@@ -11,28 +11,53 @@ export default function PostDetailPage() {
   const router = useRouter();
   const { isLoggedIn, userEmail } = useAuthStore();
   const [post, setPost] = useState<PostResponse | null>(null);
+  const [commentContent, setCommentContent] = useState("");
+
+  const fetchPost = async () => {
+    try {
+      const response = await axios.get<PostResponse>(`/api/posts/${id}`);
+      setPost(response.data);
+    } catch (error: any) {
+      alert(error.response?.data?.message || "게시글을 불러오지 못했습니다.");
+      router.push("/");
+    }
+  };
 
   useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await axios.get<PostResponse>(`/api/posts/${id}`);
-        setPost(response.data);
-      } catch (error: any) {
-        alert(error.response?.data?.message || "게시글을 불러오지 못했습니다.");
-        router.push("/");
-      }
-    };
     fetchPost();
-  }, [id, router]);
+  }, [id]);
 
-  const handleDelete = async () => {
-    if (!confirm("정말로 삭제하시겠습니까?")) return;
+  const handlePostDelete = async () => {
+    if (!confirm("정말로 게시글을 삭제하시겠습니까?")) return;
     try {
       await axios.delete(`/api/posts/${id}`);
-      alert("삭제되었습니다.");
+      alert("게시글이 삭제되었습니다.");
       router.push("/");
     } catch (error: any) {
       alert(error.response?.data?.message || "삭제 실패");
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!commentContent.trim()) return;
+    try {
+      await axios.post(`/api/posts/${id}/comments`, {
+        content: commentContent,
+      });
+      setCommentContent("");
+      fetchPost(); // 댓글 목록 갱신
+    } catch (error: any) {
+      alert(error.response?.data?.message || "댓글 등록 실패");
+    }
+  };
+
+  const handleCommentDelete = async (commentId: number) => {
+    if (!confirm("댓글을 삭제하시겠습니까?")) return;
+    try {
+      await axios.delete(`/api/posts/${id}/comments/${commentId}`);
+      fetchPost(); // 댓글 목록 갱신
+    } catch (error: any) {
+      alert(error.response?.data?.message || "댓글 삭제 실패");
     }
   };
 
@@ -41,28 +66,26 @@ export default function PostDetailPage() {
   return (
     <main className="max-w-4xl mx-auto p-6">
       <article className="bg-white p-8 rounded-lg shadow-md mb-8">
-        <header className="border-bottom pb-4 mb-6">
+        <header className="border-b pb-4 mb-6">
           <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
           <div className="flex justify-between items-center mt-4 text-gray-500 text-sm">
             <span>작성자: {post.writer}</span>
             <span>{new Date(post.createdAt).toLocaleString()}</span>
           </div>
         </header>
-
         <div className="text-gray-800 leading-relaxed min-h-[200px] whitespace-pre-wrap">
           {post.content}
         </div>
-
         {isLoggedIn && post.writer === userEmail && (
           <div className="flex justify-end gap-2 mt-8">
             <button
               onClick={() => router.push(`/posts/write?edit=${id}`)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+              className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
             >
               수정
             </button>
             <button
-              onClick={handleDelete}
+              onClick={handlePostDelete}
               className="px-4 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100"
             >
               삭제
@@ -83,29 +106,43 @@ export default function PostDetailPage() {
             >
               <div className="flex justify-between mb-2">
                 <span className="font-semibold text-sm">{comment.writer}</span>
-                <span className="text-xs text-gray-400">
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">
+                    {new Date(comment.createdAt).toLocaleDateString()}
+                  </span>
+                  {isLoggedIn && comment.writer === userEmail && (
+                    <button
+                      onClick={() => handleCommentDelete(comment.id)}
+                      className="text-xs text-red-400 hover:text-red-600"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
               </div>
               <p className="text-gray-700 text-sm">{comment.content}</p>
             </li>
           ))}
         </ul>
-
         {isLoggedIn ? (
           <div className="flex flex-col gap-2">
             <textarea
-              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border rounded-md outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="댓글을 입력하세요..."
               rows={3}
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
             />
-            <button className="self-end px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+            <button
+              onClick={handleCommentSubmit}
+              className="self-end px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
               댓글 등록
             </button>
           </div>
         ) : (
           <p className="text-center text-gray-500 py-4 border-t">
-            댓글을 작성하려면 로그인이 필요합니다.
+            로그인이 필요합니다.
           </p>
         )}
       </section>
