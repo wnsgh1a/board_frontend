@@ -18,7 +18,9 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const response = await axios.post("/api/users/login", formData);
-      const token = response.data;
+      const token =
+        typeof response.data === "string" ? response.data : response.data.token;
+
       login(formData.email, token);
       alert("로그인 성공!");
       router.push("/");
