@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "@/api/axios";
-import { useAuthStore } from "@/store/useAuthStore";
 import { PostResponse, PageResponse } from "@/types/post";
 
 export default function Home() {
-  const { isLoggedIn, logout } = useAuthStore();
   const [posts, setPosts] = useState<PostResponse[]>([]);
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -19,67 +17,43 @@ export default function Home() {
         );
         setPosts(response.data.content);
       } catch (error) {
-        console.error("게시글 로딩 실패", error);
+        console.error("로딩 실패");
       }
     };
     fetchPosts();
   }, [page]);
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">게시판</h1>
-        <div className="space-x-4">
-          {isLoggedIn ? (
-            <>
-              <Link
-                href="/posts/write"
-                className="text-blue-500 hover:underline"
-              >
-                글쓰기
-              </Link>
-              <button onClick={logout} className="text-red-500 hover:underline">
-                로그아웃
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="text-gray-600 hover:underline">
-                로그인
-              </Link>
-              <Link href="/signup" className="text-gray-600 hover:underline">
-                회원가입
-              </Link>
-            </>
-          )}
-        </div>
-      </header>
+    <section className="space-y-6">
+      <div className="flex justify-between items-center border-b pb-4">
+        <h1 className="text-2xl font-bold text-gray-900">최신 게시글</h1>
+      </div>
 
-      <section className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         {posts.length > 0 ? (
-          <ul className="divide-y">
+          <ul className="divide-y divide-gray-100">
             {posts.map((post) => (
-              <li key={post.id} className="p-4 hover:bg-gray-50 transition">
-                <Link href={`/posts/${post.id}`}>
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-800">
+              <li key={post.id} className="hover:bg-gray-50 transition">
+                <Link href={`/posts/${post.id}`} className="block p-5">
+                  <div className="flex justify-between items-start">
+                    <h2 className="text-lg font-semibold text-gray-900">
                       {post.title}
                     </h2>
                     <span className="text-sm text-gray-500">{post.writer}</span>
                   </div>
-                  <p className="text-gray-400 text-sm mt-1">
+                  <time className="text-xs text-gray-400 mt-2 block">
                     {new Date(post.createdAt).toLocaleDateString()}
-                  </p>
+                  </time>
                 </Link>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="p-10 text-center text-gray-500">
-            등록된 게시글이 없습니다.
-          </p>
+          <div className="py-20 text-center text-gray-400">
+            게시글이 없습니다.
+          </div>
         )}
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }

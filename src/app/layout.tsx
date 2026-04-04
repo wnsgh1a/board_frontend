@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import Header from "@/components/Header";
 import "./globals.css";
 
 export default function RootLayout({
@@ -20,7 +21,10 @@ export default function RootLayout({
 
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className="min-h-screen">
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+      </body>
     </html>
   );
 }
